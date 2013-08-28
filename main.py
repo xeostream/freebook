@@ -5,6 +5,8 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from apscheduler.scheduler import Scheduler
+from apscheduler import events
+import logging
 
 class ListHref(SGMLParser):
 	def __init__(self):
@@ -101,8 +103,15 @@ class freeBookMod:
 		if isSendMail:
 			send_mail(mailto_list, 'Free Book is Update', context)
 
+	def job_listener(event):
+		logging.basicConfig()
+		if event.exception:
+			print 'job failed'
+		else:
+			print 'job succeed'
+
 if __name__ = '__main__':
-	sched = Scheduler()
-	sched.daemonic = False
+	sched = Scheduler(daemonic = False)
+	sched.add_listener(job_listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
 	sched.add_interval_job(job, minutes=30)
 	sched.start()
